@@ -23,15 +23,22 @@ class AuthController extends Controller
             $user = Auth::user();
 
             $token = $user->createToken('admin')->accessToken;
-
+            $cookie = cookie()->make('jwt', $token, 60 * 24);
             return response([
                 'token' => $token,
                 'user' => $user,
-            ], Response::HTTP_OK);
+            ], Response::HTTP_OK)->withCookie($cookie);
         }
         return response([
             'error'=>'Invalid credentials',
         ], Response::HTTP_UNAUTHORIZED);
+    }
+
+    public function logout(){
+        $cookie = cookie()->forget('jwt');
+        return response([
+            'message' => 'Logged out successfully',
+        ], Response::HTTP_OK)->withCookie($cookie);
     }
     public function register(RegisterRequest $request)
     {

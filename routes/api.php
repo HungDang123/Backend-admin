@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProductController;
@@ -17,6 +18,7 @@ Route::group([
     Route::post('login', [AuthController::class, 'login']);
     Route::post('register', [AuthController::class, 'register']);
     Route::group(['middleware' => 'auth:api'], function () {
+        Route::post('logout', [AuthController::class, 'logout']);
         Route::get('profile', [ProfileController::class, 'index']);
         Route::put('profile', [ProfileController::class, 'update']);
         Route::patch('profile/password', [ProfileController::class, 'changePassword']);
@@ -25,6 +27,7 @@ Route::group([
         Route::apiResource('products', ProductController::class);
         Route::apiResource('orders', OrderController::class);
         Route::apiResource('permissions', PermissionController::class);
+        Route::get('chart', [DashboardController::class, 'chart']);
         Route::get('orders/export', [OrderController::class, 'export']);
     });
 
