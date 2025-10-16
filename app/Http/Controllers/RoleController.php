@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\RoleResource;
 use App\Models\Role;
+use Gate;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class RoleController extends Controller
 {
@@ -12,7 +15,8 @@ class RoleController extends Controller
      */
     public function index()
     {
-        return Role::all();
+        Gate::authorize('view', 'roles');
+        return response(RoleResource::collection(Role::all()), Response::HTTP_OK);
     }
 
     /**
@@ -20,7 +24,14 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        return Role::create($request->all());
+        Gate::authorize('edit', 'roles');
+        $name = $request->name;
+        $permissions = $request->permissions;
+        $role = Role::create(['name' => $name]);
+        foreach($permissions as $permission){
+            $role->permissions()->attach($permission);
+        }
+        return response(new RoleResource($role), Response::HTTP_CREATED);
     }
 
     /**
@@ -28,7 +39,8 @@ class RoleController extends Controller
      */
     public function show(string $id)
     {
-        return Role::find($id);
+        Gate::authorize('view', 'roles');
+        return response(new RoleResource(Role::find($id)), Response::HTTP_OK);
     }
 
     /**
@@ -36,7 +48,16 @@ class RoleController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        return Role::find($id)->update($request->all());
+        Gate::authorize('edit', 'roles');
+        $name = $request->name;
+        $permissions = $request->permissions;
+        $role = Role::find($id);
+        $role->update(['name' => $name]);
+        $role->permissions()->detach();
+        foreach($permissions as $permission){
+            $role->permissions()->attach($permission);
+        }
+        return response(new RoleResource($role), Response::HTTP_OK);
     }
 
     /**
@@ -44,6 +65,9 @@ class RoleController extends Controller
      */
     public function destroy(string $id)
     {
+        $role = Role::find($id);
+        $role->permissions()->detach();
+        $role->delete();
         return Role::find($id)->delete();
     }
 }

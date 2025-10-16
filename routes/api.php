@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
@@ -21,6 +23,9 @@ Route::group([
         Route::apiResource('users', UserController::class);
         Route::apiResource('roles', RoleController::class);
         Route::apiResource('products', ProductController::class);
+        Route::apiResource('orders', OrderController::class);
+        Route::apiResource('permissions', PermissionController::class);
+        Route::get('orders/export', [OrderController::class, 'export']);
     });
 
 });
